@@ -1,0 +1,120 @@
+.page-mycontact .resizable-textarea
+{
+	width:30%;
+}
+.resizable-textarea .form-textarea.resizable.textarea-processed#edit-chq-address
+{
+	height:117px;
+	width:296px;
+}
+.resizable-textarea .form-textarea.resizable.textarea-processed#edit-temp-chq-address
+{
+	height:117px;
+	width:296px;
+}
+
+.collapsible#perm_cheque_address
+{
+	width:47%;
+        float:left;
+}
+.collapsible#temp_cheque_address
+{
+	width: 47%;
+	float: right;
+}
+
+#cheque_delivery
+{
+	width:40%;
+	float:left;
+}
+#edit-submit2
+{
+	float:right;
+}
+#commentf
+{
+	width:54%;
+/*	margin-left:45%;
+	margin-top:3.35%;*/
+	float:right;
+}
+#edit-comment-cheque
+{
+	height:117px;
+	width:296px;
+}
+
+#stu_cheque_details
+{
+	float:left;	
+	width:48%;
+}
+#tea_cheque_details
+{
+	width: 46%;
+	float: right;
+}
+fieldset input[type="text"] 
+{
+	width:290px;	
+}
+#app_status
+{
+	width: 40%;
+	height: 270px;	
+}
+#comment_cheque
+{
+	
+}
+#candidate_detail
+{
+	width:50%;
+	float:left;
+	margin:-0.4px 15px 15px;
+	margin-top
+}
+.page-certificate .sticky-enabled th{
+	padding: 0px 65px 3px 0px;
+}
+#aicte-list-wrapper {
+    max-height: 500px;
+    height: 500px;
+    overflow-y: auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #cccccc;
+}
+#aicte-list-wrapper .title {
+    border-bottom: 1px solid #cccccc;
+    padding: 7px 0 7px 4px;
+}
+#aicte-list-wrapper .title:hover {
+    background: #f5f5f5;
+}
+#aicte-form-wrapper {
+    max-height: 500px;
+    height: 500px;
+    overflow-y: auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #cccccc;
+}
+#aicte-form-wrapper fieldset {
+    border: none;
+}
+#aicte-form-wrapper .form-item {
+    padding-bottom: 5px;
+    border-bottom: 1px solid #cccccc;
+}
+#textbook-companion-aicte-report-form {
+    display: none;
+    padding: 15px;
+    background: #ffffff;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    -o-border-radius: 5px;
+    border-radius: 5px;
+}

@@ -1,0 +1,58 @@
+\nonstopmode
+\documentclass[12pt]{report} 
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue}
+\usepackage{theorem,graphicx}
+\usepackage{listings,alltt}
+\bibliographystyle{plain}
+
+
+\lstset{ %configuring the display of Dwsim codes
+             tabsize=4,
+             language=dwsim,
+             basicstyle=\ttfamily,
+             aboveskip={1\baselineskip},
+             showstringspaces=false,
+             breaklines=true,
+             showspaces=false,
+             numbers=left,
+             numberstyle=\small,
+             stringstyle=\normalfont,
+             keywordstyle=\color{red},
+             emph={clc, all, gca},
+             emphstyle=\color{red},
+             commentstyle=\color{blue}\normalfont}
+
+ 
+% code environment
+{\theorembodyfont{\rmfamily} \newtheorem{codemass}{Dwsim code}[chapter]}
+\newenvironment{code}%
+{\begin{codemass}}{\hrule \end{codemass}}
+
+{\theorembodyfont{\rmfamily} \newtheorem{accmass}{Acc}[chapter]}
+\newenvironment{acc-code}%
+{\begin{accmass}}{\end{accmass}}
+
+
+% create listing for code
+
+\newcommand\tcaption[1]
+     {\addcontentsline{cod}{section}{\protect\numberline {\thecodemass}#1}}
+\makeatletter \newcommand\listofcode
+     {\chapter*{List of Dwsim Codes\markboth%
+                        {\bf List of Dwsim Codes}{}}%
+\renewcommand*\l@section{\@dottedtocline{1}{1.5em}{5em}}%
+\addcontentsline{toc}{chapter}{\protect\numberline{List of Dwsim Codes}}
+\@starttoc{cod}}
+\newcommand\l@matlab[3]
+     {#1 \par\noindent#2, #3 \par}
+\renewcommand\@pnumwidth{2.1em}
+%\makeatother
+
+\makeatletter
+\def\curlable#1{\def\thecodemass{#1}\def\@currentlabel{#1}}
+\makeatother
+
+\newcommand{\coderef}[1]{Exa~\ref{#1}}
+\newcommand{\figref}[1]{Fig.~\ref{#1}}
+
