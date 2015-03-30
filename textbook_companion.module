@@ -272,7 +272,6 @@ function textbook_companion_menu()
     'file' => 'general.inc',
     'weight' => 3,
   );
-
   $items['textbook_search'] = array(
     'title' => 'Book Search',
     'description' => '',
@@ -330,7 +329,6 @@ function textbook_companion_menu()
     'file' => 'search.inc',
     'weight' => 5,
   );
-
   $items['textbook_run'] = array(
     'title' => 'Download Codes',
     'page callback' => 'drupal_get_form',
@@ -347,7 +345,6 @@ function textbook_companion_menu()
     'type' => MENU_NORMAL_ITEM,
     'file' => 'run.inc',
   );
-
   /* download callbacks */
   $items['download/file'] = array(
     'title' => 'Code Download',
@@ -389,7 +386,6 @@ function textbook_companion_menu()
     'type' => MENU_CALLBACK,
     'file' => 'download.inc',
   );
-
   /* reviewer download */
   $items['full_download/chapter'] = array(
     'title' => 'Code Download',
@@ -2593,7 +2589,7 @@ function book_proposal_nonaicte_form_submit($form, &$form_state)
 {
   global $user;
   $selections = variable_get("aicte_".$user->uid, "");
-   $tbc_to_emails = variable_get("textbook_companion_emails_all");
+  $tbc_to_emails = variable_get("textbook_companion_emails_all", "");
   
 
   if (!$user->uid) {
