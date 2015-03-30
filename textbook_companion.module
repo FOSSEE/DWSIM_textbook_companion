@@ -2317,28 +2317,28 @@ function book_proposal_nonaicte_form($form_state)
     '#type' => 'item',
     '#value' => '<font color="red"><b>Please fill up this form carefully as the details entered here will be exactly written in the Textbook Companion and also follow the additional guidelines.</b></font>',
   );
-   $form['guidelines'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Guidelines'),
-    '#attributes' => array('style'=>'font-weight: bold'),    
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
-  );
-  $form['guidelines']['book'] = array(
-    '#type' => 'item',
-    '#required' => TRUE,    
-    '#value' => '<ul style="list-style-type:disc;font-weight: normal">
-               <li>All the fields are compulsory</li>
-               <li>Proof (example: syllabus) to the usage/ popularity of the textbook must be provided in the references box below</li>
-               <li>Please make sure that the book proposed by you has <b>at least 80</b> examples which include numerical computations and which can be coded in Scilab</li>
-               <li>If the book has less than 80 examples the <a href="tbc_honorarium" target="_blank">honorarium</a> will be provided on a pro-rata basis </li>
-               <li>Make sure the book you propose is not already an <a href="aicte_proposal" target="_blank">AICTE recommended book</a>, <a href="Completed_Books" target="_blank">completed book</a> 
-                   or a <a href="Books_Progress" target="_blank">book in progress</a> </li>
-               <li>You will be intimated about the approval or rejection of your suggestion via e-mail</li>
+//    $form['guidelines'] = array(
+//     '#type' => 'fieldset',
+//     '#title' => t('Guidelines'),
+//     '#attributes' => array('style'=>'font-weight: bold'),    
+//     '#collapsible' => TRUE,
+//     '#collapsed' => FALSE,
+//   );
+//   $form['guidelines']['book'] = array(
+//     '#type' => 'item',
+//     '#required' => TRUE,    
+//     '#value' => '<ul style="list-style-type:disc;font-weight: normal">
+//                <li>All the fields are compulsory</li>
+//                <li>Proof (example: syllabus) to the usage/ popularity of the textbook must be provided in the references box below</li>
+//                <li>Please make sure that the book proposed by you has <b>at least 80</b> examples which include numerical computations and which can be coded in Scilab</li>
+//                <li>If the book has less than 80 examples the <a href="tbc_honorarium" target="_blank">honorarium</a> will be provided on a pro-rata basis </li>
+//                <li>Make sure the book you propose is not already an <a href="aicte_proposal" target="_blank">AICTE recommended book</a>, <a href="Completed_Books" target="_blank">completed book</a> 
+//                    or a <a href="Books_Progress" target="_blank">book in progress</a> </li>
+//                <li>You will be intimated about the approval or rejection of your suggestion via e-mail</li>
 
-</ul> ',
+// </ul> ',
     
-  );
+//   );
  
 
   $form['full_name'] = array(
