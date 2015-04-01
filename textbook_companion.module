@@ -16,7 +16,7 @@ function textbook_companion_menu()
     'page callback' => 'textbook_companion_nonaicte_proposal_all',
     'access callback' => 'user_access',
     'access arguments' => array('create book proposal'),
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_CALLBACK,
   );
  /* $items["aicte_proposal"] = array(
     "title" => "AICTE Book Proposal",
