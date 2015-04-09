@@ -3,10 +3,24 @@
 
 function textbook_companion_run_form($form_state, $pref_id = NULL)
 {
+
   $form['#redirect'] = FALSE;
+  $book_default_value = 0;
 
   ahah_helper_register($form, $form_state);
-
+  if (!isset($form_state['storage']['run']['category']))
+  {
+      $category_default_value = 0;
+      if($pref_id){
+        $query = "select category from textbook_companion_preference where id=".$pref_id;
+        $result = db_query($query);
+        $row = db_fetch_object($result);
+        $category_default_value = $row->category;
+        $book_default_value = $pref_id;
+      }
+  } else {
+     $category_default_value = $form_state['storage']['run']['category'];
+  }
   /* default value for ahah fields */
   if (!isset($form_state['storage']['run']['book']))
   {
@@ -20,8 +34,6 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
         $('#edit-run-book').change();
       });";
       drupal_add_js($chapter_name_js, 'inline', 'footer');
-    } else {
-      $book_default_value = 0;
     }
   } else {
     $book_default_value =  $form_state['storage']['run']['book'];
@@ -48,7 +60,7 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
     else
       $example_default_value = $form_state['storage']['run']['example'];
   }
-
+  
   $form['run'] = array(
     '#type' => 'fieldset',
     '#title' => t('Run Book Example'),
@@ -58,11 +70,41 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
     '#suffix' => '</div>',
     '#tree' => TRUE,
   );
-
-  $form['run']['book'] = array(
+  $form['run']['category'] = array(
+    '#type' => 'select',
+    '#title' => t('Category'),
+    '#options' =>  array(0 => 'Please select',
+    1 => 'Fluid Mechanics',
+    2 => 'Control Theory & Control Systems',
+    3 => 'Chemical Engineering',
+    4 => 'Thermodynamics',
+    5 => 'Mechanical Engineering',
+    6 => 'Signal Processing',
+    7 => 'Digital Communications',
+    8 => 'Electrical Technology',
+    9 => 'Mathematics & Pure Science',
+    10 => 'Analog Electronics',
+    11 => 'Digital Electronics',
+    12 => 'Computer Programming',
+    13 => 'Others'),
+        '#default_value' => $category_default_value,
+    '#tree' => TRUE,
+    '#ahah' => array(
+      'event'   => 'change',
+      'effect' => 'none',
+      'path'    => ahah_helper_path(array('run')),
+      'wrapper' => 'run-wrapper',
+      'progress' => array(
+        'type' => 'throbber',
+        'message' => t(''),
+      ),
+    ),
+  );  
+    if($category_default_value > 0) {
+    $form['run']['book'] = array(
       '#type' => 'select',
       '#title' => t('Title of the Book'),
-      '#options' => _list_of_books(),
+      '#options' => _list_of_books($category_default_value),
       '#default_value' => $book_default_value,
       '#tree' => TRUE,
       '#ahah' => array(
@@ -75,7 +117,10 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
           'message' => t(''),
         ),
       ),
-  );
+    );
+    }else {
+      $book_default_value = 0;
+    }
 
   /* hidden form elements */
   $form['run']['book_hidden'] = array(
@@ -112,13 +157,13 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
 
     $form['run']['download_book'] = array(
       '#type' => 'item',
-      '#value' => l('Download', 'download/book/' . $book_default_value) . ' ' . t('(Download all the examples of the entire book)'),
+      '#value' => l('Download', 'download/book/' . $book_default_value) . ' ' . t('(Download the DWSIM codes for all the solved examples)'),
     );
 
-    /*$form['run']['download_book_pdf'] = array(
+    $form['run']['download_book_pdf'] = array(
       '#type' => 'item',
-      '#value' => l('Download PDF', 'textbook_companion/generate_book/' . $book_default_value) . ' ' . t('(Download PDF for all examples of the entire book)'),
-    );*/
+      '#value' => l('Download PDF', 'textbook_companion/generate_book/' . $book_default_value) . ' ' . t('(Download the PDF file containing DWSIM codes for all the solved examples)'),
+    );
 
     $form['run']['chapter'] = array(
       '#type' => 'select',
@@ -141,7 +186,7 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
     {
       $form['run']['download_chapter'] = array(
         '#type' => 'item',
-        '#value' => l('Download', 'download/chapter/' . $chapter_default_value) . ' ' . t('(Download all the examples of the entire chapter)'),
+        '#value' => l('Download', 'download/chapter/' . $chapter_default_value) . ' ' . t('(Download the DWSIM codes for all the solved examples from the Chapter)'),
       );
       $form['run']['example'] = array(
         '#type' => 'select',
@@ -189,9 +234,30 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
         $example_files_rows = array();
         while ($example_list_data = db_fetch_object($example_list_q))
         {
-          $example_file_type = 'Source or Main file';
+          $example_file_type = '';
+          switch ($example_list_data->filetype)
+          {
+          case 'S' : $example_file_type = 'Source or Main file'; break;
+          case 'R' : $example_file_type = 'Result file'; break;
+          case 'X' : $example_file_type = 'xcos file'; break;
+          default  : $example_file_type = 'Unknown'; break;
+          }
           $example_files_rows[] = array(l($example_list_data->filename, 'download/file/' . $example_list_data->id), $example_file_type);
         }
+
+        /* dependency files */
+        $dependency_list_q = db_query("SELECT dependency.id as dependency_id, dependency.filename as dependency_filename, dependency.caption as dependency_caption
+          FROM {textbook_companion_example_dependency} example_dependency LEFT JOIN {textbook_companion_dependency_files} dependency
+          ON example_dependency.dependency_id = dependency.id
+          WHERE example_dependency.example_id = %d", $form_state['values']['run']['example']);
+          while ($dependency_list_data = db_fetch_object($dependency_list_q))
+          {
+            $example_file_type = 'Dependency file';
+            $temp_caption = '';
+            if ($dependency_list_data->dependency_caption)
+              $temp_caption = ' (' . $dependency_list_data->dependency_caption . ')';
+            $example_files_rows[] = array(l($dependency_list_data->dependency_filename, 'download/dependency/' . $dependency_list_data->dependency_id) . $temp_caption, $example_file_type);
+          }
 
         /* creating list of files table */
         $example_files_header = array('Filename', 'Type');
@@ -199,7 +265,7 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
       }
       $form['run']['download_example'] = array(
         '#type' => 'item',
-        '#value' => l('Download Example', 'download/example/' . $example_default_value),
+        '#value' => l('Download DWSIM code for the example', 'download/example/' . $example_default_value),
       );
       $form['run']['example_files'] = array(
         '#type'  => 'item',
@@ -275,7 +341,8 @@ function textbook_companion_run_form_submit($form, &$form_state)
       $param['feedback_received']['example_no'] = $example_data->number;
       $param['feedback_received']['feedback'] = $form_state['values']['run']['feedback'];
 
-      $email_to = $user->mail;// . ', ' . user_load($proposal_data->uid)->mail. ', ' . user_load($example_data->approver_uid)->mail;
+      $email_to = $user->mail;
+      // . ', ' . user_load($proposal_data->uid)->mail. ', ' . user_load($example_data->approver_uid)->mail;
       if (!drupal_mail('textbook_companion', 'feedback_received', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
         drupal_set_message('Error sending email message.', 'error');
 
@@ -286,15 +353,11 @@ function textbook_companion_run_form_submit($form, &$form_state)
   }
 }
 
-function _list_of_books()
+function _list_of_books($category_default_value)
 {
   $book_titles = array('0' => 'Please select...');
-  $qq = "
-    SELECT pre.id AS id, pre.* FROM textbook_companion_preference pre
-    LEFT JOIN textbook_companion_proposal pro ON pro.id = pre.proposal_id
-    WHERE pre.approval_status = 1 AND pro.proposal_status = 3 ORDER BY pre.book ASC
-  ";
-  $book_titles_q = db_query($qq);
+  // $book_titles_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE category=".$category_default_value." AND approval_status = 1 OR approval_status = 3 ORDER BY book ASC");
+  $book_titles_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE category=".$category_default_value." AND approval_status = 1 AND proposal_id IN (SELECT id FROM textbook_companion_proposal WHERE proposal_status=3) ORDER BY book ASC");
   while ($book_titles_data = db_fetch_object($book_titles_q))
   {
     $book_titles[$book_titles_data->id] = $book_titles_data->book . ' (Written by ' . $book_titles_data->author . ')';
