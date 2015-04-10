@@ -73,9 +73,20 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
   $form['run']['category'] = array(
     '#type' => 'select',
     '#title' => t('Category'),
-    '#options' =>  array(
-    3 => 'Chemical Engineering'
-    ),
+    '#options' =>  array(0 => 'Please select',
+    1 => 'Fluid Mechanics',
+    2 => 'Control Theory & Control Systems',
+    3 => 'Chemical Engineering',
+    4 => 'Thermodynamics',
+    5 => 'Mechanical Engineering',
+    6 => 'Signal Processing',
+    7 => 'Digital Communications',
+    8 => 'Electrical Technology',
+    9 => 'Mathematics & Pure Science',
+    10 => 'Analog Electronics',
+    11 => 'Digital Electronics',
+    12 => 'Computer Programming',
+    13 => 'Others'),
         '#default_value' => $category_default_value,
     '#tree' => TRUE,
     '#ahah' => array(
@@ -110,7 +121,6 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
     }else {
       $book_default_value = 0;
     }
-
   /* hidden form elements */
   $form['run']['book_hidden'] = array(
     '#type'  => 'hidden',
@@ -147,8 +157,7 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
     $form['run']['download_book'] = array(
       '#type' => 'item',
       '#value' => l('Download', 'download/book/' . $book_default_value) . ' ' . t('(Download the DWSIM codes for all the solved examples)'),
-    );
-   
+    );   
     $form['run']['chapter'] = array(
       '#type' => 'select',
       '#title' => t('Title of the Chapter'),
@@ -208,7 +217,7 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
   );
 
   /************ START OF $_POST **************/
-  if ($_POST)
+ if ($_POST)
   {
     if (($book_default_value > 0) && ($chapter_default_value > 0) && ($example_default_value > 0))
     {
@@ -218,30 +227,9 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
         $example_files_rows = array();
         while ($example_list_data = db_fetch_object($example_list_q))
         {
-          $example_file_type = '';
-          switch ($example_list_data->filetype)
-          {
-          case 'S' : $example_file_type = 'Source or Main file'; break;
-          case 'R' : $example_file_type = 'Result file'; break;
-          case 'X' : $example_file_type = 'xcos file'; break;
-          default  : $example_file_type = 'Unknown'; break;
-          }
+          $example_file_type = 'Source or Main file';
           $example_files_rows[] = array(l($example_list_data->filename, 'download/file/' . $example_list_data->id), $example_file_type);
         }
-
-        /* dependency files */
-        $dependency_list_q = db_query("SELECT dependency.id as dependency_id, dependency.filename as dependency_filename, dependency.caption as dependency_caption
-          FROM {textbook_companion_example_dependency} example_dependency LEFT JOIN {textbook_companion_dependency_files} dependency
-          ON example_dependency.dependency_id = dependency.id
-          WHERE example_dependency.example_id = %d", $form_state['values']['run']['example']);
-          while ($dependency_list_data = db_fetch_object($dependency_list_q))
-          {
-            $example_file_type = 'Dependency file';
-            $temp_caption = '';
-            if ($dependency_list_data->dependency_caption)
-              $temp_caption = ' (' . $dependency_list_data->dependency_caption . ')';
-            $example_files_rows[] = array(l($dependency_list_data->dependency_filename, 'download/dependency/' . $dependency_list_data->dependency_id) . $temp_caption, $example_file_type);
-          }
 
         /* creating list of files table */
         $example_files_header = array('Filename', 'Type');
@@ -249,7 +237,7 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
       }
       $form['run']['download_example'] = array(
         '#type' => 'item',
-        '#value' => l('Download DWSIM code for the example', 'download/example/' . $example_default_value),
+        '#value' => l('Download Example', 'download/example/' . $example_default_value),
       );
       $form['run']['example_files'] = array(
         '#type'  => 'item',
