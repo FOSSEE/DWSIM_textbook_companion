@@ -158,23 +158,23 @@ function textbook_companion_run_form($form_state, $pref_id = NULL)
       '#type' => 'item',
       '#value' => l('Download', 'download/book/' . $book_default_value) . ' ' . t('(Download the DWSIM codes for all the solved examples)'),
     );   
-    $form['run']['chapter'] = array(
-      '#type' => 'select',
-      '#title' => t('Title of the Chapter'),
-      '#options' => _list_of_chapters($book_default_value),
-      '#default_value' => $chapter_default_value,
-      '#tree' => TRUE,
-      '#ahah' => array(
-        'event'   => 'change',
-        'effect' => 'none',
-        'path'    => ahah_helper_path(array('run')),
-        'wrapper' => 'run-wrapper',
-        'progress' => array(
-          'type' => 'throbber',
-          'message' => t(''),
-        ),
-      ),
-    );
+    // $form['run']['chapter'] = array(
+    //   '#type' => 'select',
+    //   '#title' => t('Title of the Chapter'),
+    //   '#options' => _list_of_chapters($book_default_value),
+    //   '#default_value' => $chapter_default_value,
+    //   '#tree' => TRUE,
+    //   '#ahah' => array(
+    //     'event'   => 'change',
+    //     'effect' => 'none',
+    //     'path'    => ahah_helper_path(array('run')),
+    //     'wrapper' => 'run-wrapper',
+    //     'progress' => array(
+    //       'type' => 'throbber',
+    //       'message' => t(''),
+    //     ),
+    //   ),
+    // );
     if ($chapter_default_value > 0)
     {
       $form['run']['download_chapter'] = array(
