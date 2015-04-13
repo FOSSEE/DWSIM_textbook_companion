@@ -75,7 +75,7 @@ function textbook_companion_download_example()
     unlink($zip_filename);
   } else {
     drupal_set_message("There are no files in this examples to download", 'error');
-    drupal_goto('textbook_run');
+    drupal_goto('textbook_runs');
   }
 }
 
@@ -127,7 +127,7 @@ function textbook_companion_download_chapter()
     unlink($zip_filename);
   } else {
     drupal_set_message("There are no examples in this chapter to download", 'error');
-    drupal_goto('textbook_run');
+    drupal_goto('textbook_runs');
   }
 }
 
@@ -205,7 +205,7 @@ function textbook_companion_download_book()
     }
   } else {
     drupal_set_message("There are no examples in this book to download", 'error');
-    drupal_goto('textbook_run');
+    drupal_goto('textbook_runs');
   }
 }
 
