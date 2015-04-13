@@ -391,7 +391,7 @@ function textbook_companion_menu()
     'title' => 'Code Download',
     'description' => 'Code Download', 
     'page callback' => 'textbook_companion_download_full_chapter',
-    'access arguments' => array('approve code'),
+    'access arguments' => array('download code'),
     'type' => MENU_CALLBACK,
     'file' => 'full_download.inc',
   );
@@ -399,7 +399,7 @@ function textbook_companion_menu()
     'title' => 'Code Download',
     'description' => 'Code Download', 
     'page callback' => 'textbook_companion_download_full_book',
-    'access arguments' => array('approve code'),
+    'access arguments' => array('download code'),
     'type' => MENU_CALLBACK,
     'file' => 'full_download.inc',
   );
