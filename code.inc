@@ -382,12 +382,11 @@ function upload_examples_form_submit($form, &$form_state) {
       if (move_uploaded_file($_FILES['files']['tmp_name'][$file_form_name], $root_path . $dest_path . $_FILES['files']['name'][$file_form_name]))
       {
         /* for uploaded files making an entry in the database */
-        db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filemime, filesize, filetype, timestamp)
-          VALUES (%d, '%s', '%s', '%s', %d, '%s', %d)",
+        db_query("INSERT INTO {textbook_companion_example_files} (example_id, filename, filepath, filesize, filetype, timestamp)
+          VALUES (%d, '%s', '%s', %d, '%s', %d)",
           $example_id,
           $_FILES['files']['name'][$file_form_name],
-          $dest_path . $_FILES['files']['name'][$file_form_name],
-          $_FILES['files']['type'][$file_form_name],
+          $dest_path . $_FILES['files']['name'][$file_form_name],         
           $_FILES['files']['size'][$file_form_name],
           $file_type,
           time()
