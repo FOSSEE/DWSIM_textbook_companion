@@ -7,9 +7,9 @@
 \bibliographystyle{plain}
 
 
-\lstset{ %configuring the display of Dwsim codes
+\lstset{ %configuring the display of scilab codes
              tabsize=4,
-             language=dwsim,
+             language=scilab,
              basicstyle=\ttfamily,
              aboveskip={1\baselineskip},
              showstringspaces=false,
@@ -25,7 +25,7 @@
 
  
 % code environment
-{\theorembodyfont{\rmfamily} \newtheorem{codemass}{Dwsim code}[chapter]}
+{\theorembodyfont{\rmfamily} \newtheorem{codemass}{Scilab code}[chapter]}
 \newenvironment{code}%
 {\begin{codemass}}{\hrule \end{codemass}}
 
@@ -39,10 +39,10 @@
 \newcommand\tcaption[1]
      {\addcontentsline{cod}{section}{\protect\numberline {\thecodemass}#1}}
 \makeatletter \newcommand\listofcode
-     {\chapter*{List of Dwsim Codes\markboth%
-                        {\bf List of Dwsim Codes}{}}%
+     {\chapter*{List of Scilab Codes\markboth%
+                        {\bf List of Scilab Codes}{}}%
 \renewcommand*\l@section{\@dottedtocline{1}{1.5em}{5em}}%
-\addcontentsline{toc}{chapter}{\protect\numberline{List of Dwsim Codes}}
+\addcontentsline{toc}{chapter}{\protect\numberline{List of Scilab Codes}}
 \@starttoc{cod}}
 \newcommand\l@matlab[3]
      {#1 \par\noindent#2, #3 \par}

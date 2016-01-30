@@ -22,16 +22,42 @@ function cheque_proposal_all()
   $count=20;
    /* get pending proposals to be approved */
   $proposal_rows = array();
-  $proposal_q = "SELECT * FROM {textbook_companion_proposal} ORDER BY id DESC";
-  $pagerquery = pager_query($proposal_q, $count); 
-  while ($proposal_data = db_fetch_object($pagerquery))
+
+  /*$proposal_q = "SELECT * FROM {textbook_companion_proposal} ORDER BY id DESC";*/
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->orderBy('id', 'DESC');
+
+  
+  /*$pagerquery = pager_query($proposal_q, $count); */
+	$pagerquery = $query->extend('PagerDefault')->limit($count)->execute();
+
+  while ($proposal_data = $pagerquery->fetchObject())
   {
     /* get preference */
-    $preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
-    $preference_data = db_fetch_object($preference_q);
 
-    $preference_q1 = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
-    $preference_data1 = db_fetch_object($preference_q1);
+    /*$preference_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE proposal_id = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+    $preference_data = db_fetch_object($preference_q);*/
+
+	$query = db_select('textbook_companion_preference');
+	$query->fields('textbook_companion_preference');
+	$query->condition('proposal_id', $proposal_data->id);
+	$query->condition('approval_status', 1);
+	$query->range(0, 1);
+	$result = $query->execute();
+	$preference_data =$result->fetchObject();
+
+    /*$preference_q1 = db_query("SELECT * FROM {textbook_companion_proposal} WHERE uid = %d AND approval_status = 1 LIMIT 1", $proposal_data->id);
+    $preference_data1 = db_fetch_object($preference_q1);*/
+
+	$query = db_select('textbook_companion_proposal');
+	$query->fields('textbook_companion_proposal');
+	$query->condition('uid', $proposal_data->id);
+	$query->condition('proposal_status', 1);
+	$query->range(0, 1);
+	$result = $query->execute();
+	$preference_data1=$result->fetchObject();
+
     
     $proposal_status = '';
     switch ($proposal_data->proposal_status)
@@ -53,8 +79,8 @@ function cheque_proposal_all()
   }
  
   $proposal_header = array('Date of Submission', 'Contributor Name', 'Expected Date of Completion', 'Status');
-  $output = theme_table($proposal_header, $proposal_rows, $proposal_rows1);
-  return $output . theme('pager', $count);
+  $output = theme('table',array('header' =>$proposal_header,'rows'=>$proposal_rows));
+  return $output . theme_pager($count);
   }
   return $form;
 
