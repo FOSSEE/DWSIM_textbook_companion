@@ -120,6 +120,7 @@ function textbook_companion_download_chapter()
   {
     $chapter_id = arg(3);
     //var_dump($chapter_id);die;
+    global $root_path;
     $root_path = textbook_companion_path();
     /* get example data */
     /*$chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d", $chapter_id);
@@ -131,9 +132,9 @@ function textbook_companion_download_chapter()
     $chapter_data = $result->fetchObject();
     $CH_PATH = 'CH' . $chapter_data->number . '/';
     /* zip filename */
-if (!is_dir($root_temp_path . 'tbc_download_temp'))
-    mkdir($root_temp_path . 'tbc_download_temp');
-    $zip_filename = $root_temp_path .'tbc_download_temp/' . 'zip-' . time() . '-' . rand(0, 999999) . '.zip';
+if (!is_dir($root_path . 'tbc_download_temp'))
+    mkdir($root_path . 'tbc_download_temp');
+    $zip_filename = $root_path .'tbc_download_temp/' . 'zip-' . time() . '-' . rand(0, 999999) . '.zip';
     
     /* creating zip archive on the server */
     $zip = new ZipArchive;
