@@ -1942,9 +1942,9 @@ function book_proposal_form_submit($form, &$form_state, $directory_name = NULL)
 	
 	$result = db_query($query);*/
 	$query = "INSERT INTO {textbook_companion_proposal}
-    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university,city,pincode,state,country, faculty, reviewer,reference, completion_date, creation_date, approval_date, proposal_status, dwsim_version, operating_system, teacher_email,reason,samplefilepath,proposal_type) VALUES (:uid, :approver_uid, :full_name, :mobile, :gender, :how_project, :course, :branch, :university, :city,:pincode,:state,:country, :faculty, :reviewer,:reference, :completion_date,
+    (uid, approver_uid, full_name, mobile, gender, how_project, course, branch, university,city,pincode,state,country, faculty, reviewer,reference, completion_date, creation_date, approval_date, proposal_status, dwsim_version, operating_system, teacher_email,reason,samplefilepath,proposal_type,proposed_completion_date) VALUES (:uid, :approver_uid, :full_name, :mobile, :gender, :how_project, :course, :branch, :university, :city,:pincode,:state,:country, :faculty, :reviewer,:reference, :completion_date,
  :creation_date, :approval_date, :proposal_status, :dwsim_version, :operating_system,
-:teacher_email,:reason,:samplefilepath,:proposal_type)";
+:teacher_email,:reason,:samplefilepath,:proposal_type,:proposed_completion_date)";
 	$args = array(
 		":uid" => $user->uid,
 		":approver_uid" => 0,
@@ -1960,7 +1960,7 @@ function book_proposal_form_submit($form, &$form_state, $directory_name = NULL)
 		":state" => trim($form_state['values']['all_state']),
 		":country" => $form_state['values']['country'],
 		":faculty" => ucwords(strtolower($form_state['values']['faculty'])),
-		":reviewer" => ucwords(strtolower($form_state['values']['reviewer'])),
+		":reviewer" => "DWSIM TBC Team",
 		":reference" => trim($form_state['values']['reference']),
 		":completion_date" => $completion_date_timestamp,
 		":creation_date" => time(),
@@ -1971,7 +1971,8 @@ function book_proposal_form_submit($form, &$form_state, $directory_name = NULL)
 		":teacher_email" => $form_state['values']['faculty_email'],
 		":reason" => $form_state['values']['reason'],
 		":samplefilepath" => "",
-		":proposal_type" => 0
+		":proposal_type" => 0,
+		":proposed_completion_date" => $completion_date_timestamp
 	);
 	$result = db_query($query, $args, array(
 		'return' => Database::RETURN_INSERT_ID
