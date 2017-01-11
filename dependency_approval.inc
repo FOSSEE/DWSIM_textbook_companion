@@ -161,8 +161,8 @@ function textbook_companion_dependency_approval_form_submit($form, &$form_state)
                         $email_subject = t('Dependency deleted');
                         $email_body = t('Dependency deleted : .') . $form_state['values']['run']['dependency'];
                         $email_to = $user->mail;
-                        $param['standard']['subject'] = $email_subject;
-                        $param['standard']['body'] = $email_body;
+                        $params['standard']['subject'] = $email_subject;
+                        $params['standard']['body'] = $email_body;
                         if (!drupal_mail('textbook_companion', 'standard', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
                             drupal_set_message('Error sending email message.', 'error');
                       }
@@ -220,8 +220,8 @@ function textbook_companion_delete_dependency($dependency_id)
         )), 'error');
         /* sending email to admins */
         $email_to = variable_get('textbook_companion_emails', '');
-        $param['standard']['subject'] = "[ERROR] Error deleting dependency file";
-        $param['standard']['body'] = "Error deleting dependency files by " . $user->uid . " at " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . " :
+        $params['standard']['subject'] = "[ERROR] Error deleting dependency file";
+        $params['standard']['body'] = "Error deleting dependency files by " . $user->uid . " at " . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . " :
     dependency id : " . $dependency_id . "
     file id : " . $dependency_files_data->id . "
     file path : " . $dependency_files_data->filepath;
