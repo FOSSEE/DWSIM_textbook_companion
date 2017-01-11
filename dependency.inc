@@ -281,8 +281,8 @@ function upload_dependency_form_submit($form, &$form_state)
       {
         drupal_set_message('Dependencies uploaded successfully.', 'status');
         /* sending email */
-        $param['dependency_uploaded']['user_id'] = $user->uid;
-        $param['dependency_uploaded']['dependency_names'] = $dependency_names;
+        $params['dependency_uploaded']['user_id'] = $user->uid;
+        $params['dependency_uploaded']['dependency_names'] = $dependency_names;
         $email_to = $user->mail;
         if (!drupal_mail('textbook_companion', 'dependency_uploaded', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
             drupal_set_message('Error sending email message.', 'error');
@@ -623,8 +623,8 @@ function edit_dependency_form_submit($form, &$form_state)
       {
         drupal_set_message('Dependencies uploaded successfully.', 'status');
         /* sending email */
-        $param['dependency_uploaded']['user_id'] = $user->uid;
-        $param['dependency_uploaded']['dependency_names'] = $dependency_names;
+        $params['dependency_uploaded']['user_id'] = $user->uid;
+        $params['dependency_uploaded']['dependency_names'] = $dependency_names;
         $email_to = $user->mail;
         if (!drupal_mail('textbook_companion', 'dependency_uploaded', $email_to, language_default(), $param, variable_get('textbook_companion_from_email', NULL), TRUE))
             drupal_set_message('Error sending email message.', 'error');
