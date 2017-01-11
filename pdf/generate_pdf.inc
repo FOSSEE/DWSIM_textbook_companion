@@ -99,10 +99,7 @@ function generate_pdf()
 	$UniqueString    = "";
 	$tempDir         = $path . "/pdf/temp_prcode/";
 	$query           = db_select('textbook_companion_qr_code');
-	$query->fields('textbook_companion_qr_code', array(
-		'qr_code',
-		'proposal_id'
-	));
+	$query->fields('textbook_companion_qr_code');
 	$query->condition('proposal_id', $proposal_id);
 	$result          = $query->execute();
 	$data            = $result->fetchObject();
