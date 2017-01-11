@@ -51,7 +51,7 @@ function _list_all_certificates()
 	} //$exist_id->id
 	else {
 		drupal_set_message('<strong>You need to propose a book <a href="http://dwsim.fossee.in/textbook-companion/proposal">Book Proposal</a></strong> or if you have already proposed then your book is under reviewing process', 'status');
-		$page_content = "<span style='color:red;'>No book has been completed by you</span>";
+		$page_content = "<span style='color:red;'> No certificate available </span>";
 		return $page_content;
 	}
 }
