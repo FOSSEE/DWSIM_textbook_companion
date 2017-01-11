@@ -531,16 +531,16 @@ function bulk_approval_form_submit($form, &$form_state)
 					$num_updated = $query->execute();
 				} //$chapter_data = $chapter_q->fetchObject()
 				$query = db_update('textbook_companion_preference');
-				$query->fields(array(
-					'submited_all_examples_code' => 1
-				));
-				$query->condition('id', $form_state['values']['book']);
+                $query->fields(array(
+                    'submited_all_examples_code' => 2
+                ));
+                $query->condition('id', $form_state['values']['book']);
 				$num_updated = $query->execute();
 				drupal_set_message(t('Approved Entire Book.'), 'status');
 				/* email */
 				//$email_subject = t('Your uploaded examples have been approved');
 				//$email_body = array(0=>t('Your all the uploaded examples for the book have been approved.'));
-				$email_subject = t('[!site_name] Your uploaded Textbook Companion examples have been approved', array(
+				$email_subject = t('[!site_name][Textbook Companion] Your uploaded Textbook Companion examples have been approved', array(
 					'!site_name' => variable_get('site_name', '')
 				));
 				$email_body    = array(

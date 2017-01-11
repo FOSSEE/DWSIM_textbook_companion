@@ -73,14 +73,14 @@ function textbook_companion_run_form($form, &$form_state)
 			'#ajax' => array(
 				'callback' => 'ajax_example_list_callback'
 			),
-			'#validated' => TRUE,
-			'#states' => array(
-				'invisible' => array(
-					':input[name="category"]' => array(
-						'value' => 0
-					)
-				)
+			'#validated' => TRUE
+			/* '#states' => array(
+			'invisible' => array(
+			':input[name="category"]' => array(
+			'value' => 0
 			)
+			)
+			)*/
 		);
 		$form['download_chapter']      = array(
 			'#type' => 'item',
@@ -448,7 +448,7 @@ function _list_of_books($preference_id = NULL)
 	}
 	return $book_titles;
 }
-function _list_of_chapters($preference_id = 0)
+function _list_of_chapters($preference_id)
 {
 	$book_chapters = array(
 		0 => 'Please select...'
@@ -552,7 +552,7 @@ function _html_book_info($preference_id)
 	$book_details = $query->execute()->fetchObject();
 	$html_data    = '';
 	if ($book_details) {
-		$html_data = '<table cellspacing="1" cellpadding="1" border="0" style="width: 100%;" valign="top">' . '<tr><td style="width: 35%;"><span style="color: rgb(128, 0, 0);"><strong>About the Book</strong></span></td><td style="width: 35%;"><span style="color: rgb(128, 0, 0);"><strong>About the Contributor</strong></span></td>' . '<tr><td valign="top"><ul>' . '<li><strong>Author:</strong> ' . $book_details->preference_author . '</li>' . '<li><strong>Title of the Book:</strong> ' . $book_details->preference_book . '</li>' . '<li><strong>Publisher:</strong> ' . $book_details->preference_publisher . '</li>' . '<li><strong>Year:</strong> ' . $book_details->preference_year . '</li>' . '<li><strong>Edition:</strong> ' . $book_details->preference_edition . '</li>' . '</ul></td><td valign="top"><ul>' . '<li><strong>Contributor Name: </strong>' . $book_details->proposal_full_name . ', ' . $book_details->proposal_course . ', ' . $book_details->proposal_branch . ', ' . $book_details->proposal_university . '</li>' . '<li><strong>College Teacher: </strong>' . $book_details->proposal_faculty . '</li>' . '<li><strong>Reviewer: </strong>' . $book_details->proposal_reviewer . '</li>' . '</ul></td></tr>' . '</table>';
+		$html_data = '<table cellspacing="1" cellpadding="1" border="0" style="width: 100%;" valign="top">' . '<tr><td style="width: 35%;"><span style="color: rgb(128, 0, 0);"><strong>About the Book</strong></span></td><td style="width: 35%;"><span style="color: rgb(128, 0, 0);"><strong>About the Contributor</strong></span></td>' . '<tr><td valign="top"><ul>' . '<li><strong>Author:</strong> ' . $book_details->preference_author . '</li>' . '<li><strong>Title of the Book:</strong> ' . $book_details->preference_book . '</li>' . '<li><strong>Publisher:</strong> ' . $book_details->preference_publisher . '</li>' . '<li><strong>Year:</strong> ' . $book_details->preference_year . '</li>' . '<li><strong>Edition:</strong> ' . $book_details->preference_edition . '</li>' . '</ul></td><td valign="top"><ul>' . '<li><strong>Contributor Name: </strong>' . $book_details->proposal_full_name . ', ' . $book_details->proposal_course . ', ' . $book_details->proposal_branch . ', ' . $book_details->proposal_university . '</li>' . '<li><strong>Reviewer: </strong>' . $book_details->proposal_reviewer . '</li>' . '</ul></td></tr>' . '</table>';
 	} //$book_details
 	return $html_data;
 }

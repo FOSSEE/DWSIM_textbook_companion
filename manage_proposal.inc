@@ -13,7 +13,7 @@ function _proposal_pending()
 		$pending_rows[$pending_data->id] = array(
 			date('d-m-Y', $pending_data->creation_date),
 			l($pending_data->full_name, 'user/' . $pending_data->uid),
-			date('d-m-Y', $pending_data->completion_date),
+			date('d-m-Y', $pending_data->proposed_completion_date),
 			l('Approve', 'textbook-companion/manage-proposal/approve/' . $pending_data->id) . ' | ' . l('Edit', 'textbook-companion/manage-proposal/edit/' . $pending_data->id)
 		);
 	} //$pending_data = $pending_q->fetchObject()
@@ -25,7 +25,7 @@ function _proposal_pending()
 	$pending_header = array(
 		'Date of Submission',
 		'Contributor Name',
-		'Date of Completion',
+		'Proposed Date of Completion',
 		'Action'
 	);
 	$output         = theme('table', array(
@@ -100,12 +100,19 @@ function _proposal_all()
 				$proposal_status = 'Unknown';
 				break;
 		} //$proposal_data->proposal_status
+		if ($proposal_data->proposed_completion_date != 0) {
+			$proposed_completion_date = date('d-m-Y', $proposal_data->proposed_completion_date);
+		} //$proposal_data->proposed_completion_date != 0
+		else {
+			$proposed_completion_date = "-----";
+		}
 		$proposal_rows[] = array(
 			date('d-m-Y', $proposal_data->creation_date),
 			"{$preference_data->book} <br> 
 <em>by {$preference_data->author}</em>",
 			l($proposal_data->full_name, 'user/' . $proposal_data->uid),
 			date('d-m-Y', $proposal_data->completion_date),
+			$proposed_completion_date,
 			$proposal_status,
 			l('Status', 'textbook-companion/manage-proposal/status/' . $proposal_data->id) . ' | ' . l('Edit', 'textbook-companion/manage-proposal/edit/' . $proposal_data->id) . _tbc_ext($proposal_status, $preference_data->id)
 		);
@@ -119,7 +126,8 @@ function _proposal_all()
 		'Date of Submission',
 		'Title of the Book',
 		'Contributor Name',
-		'Expected Date of Completion',
+		'Actual Date of Completion',
+		'Proposed Date of Completion',
 		'Status',
 		'Action'
 	);
@@ -215,7 +223,7 @@ function _category_all()
 /******************************************************************************/
 /************************** PROPOSAL APPROVAL FORM ****************************/
 /******************************************************************************/
-function proposal_approval_form($form, $form_state)
+function proposal_approval_form($form, &$form_state)
 {
 	global $user;
 	/* get current proposal */
@@ -241,70 +249,87 @@ function proposal_approval_form($form, $form_state)
 		drupal_goto('textbook-companion/manage-proposal');
 		return;
 	}
-	$form['full_name']        = array(
+	$form['full_name']   = array(
 		'#type' => 'item',
 		'#markup' => l($row->full_name, 'user/' . $row->uid),
 		'#title' => t('Contributor Name')
 	);
-	$form['email']            = array(
+	$form['email']       = array(
 		'#type' => 'item',
 		'#markup' => user_load($row->uid)->mail,
 		'#title' => t('Email')
 	);
-	$form['mobile']           = array(
+	$form['mobile']      = array(
 		'#type' => 'item',
 		'#markup' => $row->mobile,
 		'#title' => t('Mobile')
 	);
-	$form['how_project']      = array(
+	$form['how_project'] = array(
 		'#type' => 'item',
 		'#markup' => $row->how_project,
 		'#title' => t('How did you come to know about this project')
 	);
-	$form['course']           = array(
+	$form['course']      = array(
 		'#type' => 'item',
 		'#markup' => $row->course,
 		'#title' => t('Course')
 	);
-	$form['branch']           = array(
+	$form['branch']      = array(
 		'#type' => 'item',
 		'#markup' => $row->branch,
 		'#title' => t('Department/Branch')
 	);
-	$form['university']       = array(
+	$form['university']  = array(
 		'#type' => 'item',
 		'#markup' => $row->university,
 		'#title' => t('University/Institute')
 	);
-	$form['city']             = array(
+	$form['city']        = array(
 		'#type' => 'item',
 		'#markup' => $row->city,
 		'#title' => t('City/Village')
 	);
-	$form['pincode']          = array(
+	$form['pincode']     = array(
 		'#type' => 'item',
 		'#markup' => $row->pincode,
 		'#title' => t('Pincode')
 	);
-	$form['state']            = array(
+	$form['state']       = array(
 		'#type' => 'item',
 		'#markup' => $row->state,
 		'#title' => t('State')
 	);
-	$form['faculty']          = array(
+	$form['faculty']     = array(
 		'#type' => 'hidden',
 		'#markup' => $row->faculty,
 		'#title' => t('College Teacher/Professor')
 	);
-	$form['reviewer']         = array(
+	$form['reviewer']    = array(
 		'#type' => 'hidden',
 		'#markup' => $row->reviewer,
 		'#title' => t('Reviewer')
 	);
+	if ($row->proposed_completion_date != 0) {
+		$proposed_completion_date = date('d-m-Y', $row->proposed_completion_date);
+	} //$row->proposed_completion_date != 0
+	else {
+		$proposed_completion_date = "-----";
+	}
+	$form['proposed_completion_date'] = array(
+		'#type' => 'item',
+		'#markup' => $proposed_completion_date,
+		'#title' => t('Proposed Date of Completion')
+	);
+	if ($row->completion_date != 0) {
+		$actual_completion_date = date('d-m-Y', $row->completion_date);
+	} //$row->completion_date != 0
+	else {
+		$actual_completion_date = "-----";
+	}
 	$form['completion_date']  = array(
 		'#type' => 'item',
-		'#markup' => date('d-m-Y', $row->completion_date),
-		'#title' => t('Expected Date of Completion')
+		'#markup' => $actual_completion_date,
+		'#title' => t('Actual Date of Completion')
 	);
 	$form['operating_system'] = array(
 		'#type' => 'item',
@@ -314,7 +339,7 @@ function proposal_approval_form($form, $form_state)
 	$form['version']          = array(
 		'#type' => 'item',
 		'#markup' => $row->dwsim_version,
-		'#title' => t('DWSIM Version')
+		'#title' => t('dwsim Version')
 	);
 	$form['reference']        = array(
 		'#type' => 'item',
@@ -436,6 +461,7 @@ function proposal_approval_form_submit($form, &$form_state)
 			'approver_uid' => $user->uid,
 			'approval_date' => time(),
 			'proposal_status' => 2,
+			'completion_date' => '0',
 			'message' => $form_state['values']['message']
 		));
 		$query->condition('id', $proposal_id);
@@ -467,11 +493,11 @@ function proposal_approval_form_submit($form, &$form_state)
 		$book_user                                    = user_load($row->uid);
 		$email_to                                     = $book_user->mail;
 		$from                                         = variable_get('textbook_companion_from_email', '');
-		$bcc                                          = variable_get('textbook_companion_bcc_emails', '');
+		$bcc                                          = variable_get('textbook_companion_emails', '');
 		$cc                                           = variable_get('textbook_companion_cc_emails', '');
-		$params['proposal_disapproved']['proposal_id'] = $proposal_id;
-		$params['proposal_disapproved']['user_id']     = $row->uid;
-		$params['proposal_disapproved']['headers']     = array(
+		$param['proposal_disapproved']['proposal_id'] = $proposal_id;
+		$param['proposal_disapproved']['user_id']     = $row->uid;
+		$param['proposal_disapproved']['headers']     = array(
 			'From' => $from,
 			'MIME-Version' => '1.0',
 			'Content-Type' => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
@@ -480,7 +506,7 @@ function proposal_approval_form_submit($form, &$form_state)
 			'Cc' => $cc,
 			'Bcc' => $bcc
 		);
-		if (!drupal_mail('textbook_companion', 'proposal_disapproved', $email_to, language_default(), $params, $from, TRUE))
+		if (!drupal_mail('textbook_companion', 'proposal_disapproved', $email_to, language_default(), $param, $from, TRUE))
 			drupal_set_message('Error sending email message.', 'error');
 		drupal_set_message('Book proposal dis-approved. User has been notified of the dis-approval.', 'error');
 		drupal_goto('textbook-companion/manage-proposal');
@@ -525,11 +551,11 @@ function proposal_approval_form_submit($form, &$form_state)
 	$book_user                                 = user_load($row->uid);
 	$email_to                                  = $book_user->mail;
 	$from                                      = variable_get('textbook_companion_from_email', '');
-	$bcc                                       = variable_get('textbook_companion_bcc_emails', '');
+	$bcc                                       = variable_get('textbook_companion_emails', '');
 	$cc                                        = variable_get('textbook_companion_cc_emails', '');
-	$params['proposal_approved']['proposal_id'] = $proposal_id;
-	$params['proposal_approved']['user_id']     = $row->uid;
-	$params['proposal_approved']['headers']     = array(
+	$param['proposal_approved']['proposal_id'] = $proposal_id;
+	$param['proposal_approved']['user_id']     = $row->uid;
+	$param['proposal_approved']['headers']     = array(
 		'From' => $from,
 		'MIME-Version' => '1.0',
 		'Content-Type' => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
@@ -538,7 +564,7 @@ function proposal_approval_form_submit($form, &$form_state)
 		'Cc' => $cc,
 		'Bcc' => $bcc
 	);
-	if (!drupal_mail('textbook_companion', 'proposal_approved', $email_to, language_default(), $params, $from, TRUE))
+	if (!drupal_mail('textbook_companion', 'proposal_approved', $email_to, language_default(), $param, $from, TRUE))
 		drupal_set_message('Error sending email message.', 'error');
 	drupal_set_message('Book proposal approved. User has been notified of the approval', 'status');
 	drupal_goto('textbook-companion/manage-proposal');
@@ -710,7 +736,7 @@ function proposal_status_form($from, $form_state)
 	$query->condition('proposal_id', $proposal_id);
 	$query->orderBy('pref_number', 'ASC');
 	$preference_q_status = $query->execute()->fetchObject();
-	if ($preference_q_status->submited_all_examples_code < 1 && $proposal_data->proposal_status == 5) {
+	if ($preference_q_status->submited_all_examples_code == 1) {
 		$form['submit_all_code'] = array(
 			'#type' => 'checkbox',
 			'#title' => t('<strong>Enable Code Submission for user</strong>'),
@@ -720,18 +746,20 @@ function proposal_status_form($from, $form_state)
 			'#type' => 'hidden',
 			'#value' => 0
 		);
-	} //$preference_q_status->submited_all_examples_code < 1 && $proposal_data->proposal_status == 5
-	if ($proposal_data->proposal_status == 1 || $proposal_data->proposal_status == 4 || $preference_q_status->submited_all_examples_code == 1 && $proposal_data->proposal_status == 5) {
-		$form['completed']       = array(
-			'#type' => 'checkbox',
-			'#title' => t('<strong>Completed</strong>'),
-			'#description' => t('Check if user has completed all the book examples.')
-		);
-		$form['submit_all_code'] = array(
-			'#type' => 'hidden',
-			'#value' => 0
-		);
-	} //$proposal_data->proposal_status == 1 || $proposal_data->proposal_status == 4 || $preference_q_status->submited_all_examples_code == 1 && $proposal_data->proposal_status == 5
+	} //$preference_q_status->submited_all_examples_code == 1
+	else if ($preference_q_status->submited_all_examples_code == 2) {
+		if (($proposal_data->proposal_status == 1 || $proposal_data->proposal_status == 4) || $proposal_data->proposal_status == 5) {
+			$form['completed']       = array(
+				'#type' => 'checkbox',
+				'#title' => t('<strong>Completed</strong>'),
+				'#description' => t('Check if user has completed all the book examples.')
+			);
+			$form['submit_all_code'] = array(
+				'#type' => 'hidden',
+				'#value' => 0
+			);
+		} //($proposal_data->proposal_status == 1 || $proposal_data->proposal_status == 4) || $proposal_data->proposal_status == 5
+	} //$preference_q_status->submited_all_examples_code == 2
 	if ($proposal_data->proposal_status == 0) {
 		$form['approve']         = array(
 			'#type' => 'item',
@@ -778,24 +806,38 @@ function proposal_status_form_submit($form, &$form_state)
 	} //!$proposal_data = $proposal_q->fetchObject()
 	if ($form_state['values']['submit_all_code'] == 1) {
 		/*db_query("UPDATE {textbook_companion_proposal} SET proposal_status = 3 WHERE id = %d", $proposal_id);*/
-		$query = db_update('textbook_companion_proposal');
+		$query = db_update('textbook_companion_preference');
 		$query->fields(array(
-			'proposal_status' => 1
+			'submited_all_examples_code' => 0
 		));
 		$query->condition('id', $proposal_id);
 		$num_updated                                                = $query->execute();
 		/* sending email */
 		$book_user                                                  = user_load($proposal_data->uid);
+		$email_to                                                   = $book_user->mail;
+		$from                                                       = variable_get('textbook_companion_from_email', '');
+		$bcc                                                        = variable_get('textbook_companion_bcc_emails', '');
+		$cc                                                         = variable_get('textbook_companion_cc_emails', '');
+		$book_user                                                  = user_load($proposal_data->uid);
 		$params['all_code_submitted_status_changed']['proposal_id'] = $proposal_id;
 		$params['all_code_submitted_status_changed']['user_id']     = $proposal_data->uid;
-		$email_to                                                   = $book_user->mail;
-		if (!drupal_mail('textbook_companion', 'all_code_submitted_status_changed', $email_to, language_default(), $params, variable_get('textbook_companion_from_email', NULL), TRUE))
+		$params['all_code_submitted_status_changed']['headers']     = array(
+			'From' => $from,
+			'MIME-Version' => '1.0',
+			'Content-Type' => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+			'Content-Transfer-Encoding' => '8Bit',
+			'X-Mailer' => 'Drupal',
+			'Cc' => $cc,
+			'Bcc' => $bcc
+		);
+		if (!drupal_mail('textbook_companion', 'all_code_submitted_status_changed', $email_to, language_default(), $params, $from, TRUE))
 			drupal_set_message('Error sending email message.', 'error');
 		drupal_set_message('User has been notified of that code submission interface is now available .', 'status');
 		drupal_goto('textbook-companion/manage-proposal');
 		return;
 	} //$form_state['values']['submit_all_code'] == 1
-	else /* set the book status to completed */ if ($form_state['values']['completed'] == 1) {
+	else if ($form_state['values']['completed'] == 1) {
+		/* set the book status to completed */
 		/*db_query("UPDATE {textbook_companion_proposal} SET proposal_status = 3 WHERE id = %d", $proposal_id);*/
 		$query = db_update('textbook_companion_proposal');
 		$query->fields(array(
@@ -809,11 +851,11 @@ function proposal_status_form_submit($form, &$form_state)
 		$book_user                                  = user_load($proposal_data->uid);
 		$email_to                                   = $book_user->mail;
 		$from                                       = variable_get('textbook_companion_from_email', '');
-		$bcc                                        = variable_get('textbook_companion_bcc_emails', '');
+		$bcc                                        = variable_get('textbook_companion_emails', '');
 		$cc                                         = variable_get('textbook_companion_cc_emails', '');
-		$params['proposal_completed']['proposal_id'] = $proposal_id;
-		$params['proposal_completed']['user_id']     = $proposal_data->uid;
-		$params['proposal_completed']['headers']     = array(
+		$param['proposal_completed']['proposal_id'] = $proposal_id;
+		$param['proposal_completed']['user_id']     = $proposal_data->uid;
+		$param['proposal_completed']['headers']     = array(
 			'From' => $from,
 			'MIME-Version' => '1.0',
 			'Content-Type' => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
@@ -837,7 +879,7 @@ function proposal_status_form_submit($form, &$form_state)
 /******************************************************************************/
 /**************************** PROPOSAL EDIT FORM ******************************/
 /******************************************************************************/
-function proposal_edit_form($fom, $form_state, $nonaicte_book)
+function proposal_edit_form($form, &$form_state, $nonaicte_book)
 {
 	global $user;
 	/* get current proposal */
@@ -1738,7 +1780,8 @@ function _failed_all($preference_id = 0, $confirm = "")
       Kindly upload the TBC codes on the interface within 5 days from now.<br>
       Failure to submit the same will result in disapproval of your work and cancellation of your internship.<br><br>
       Regards,<br>
-      DWSIM TBC Team
+      DWSIM TBC Team,<br>
+      FOSSEE.
     </p>
     ";
 		$message     = array(
