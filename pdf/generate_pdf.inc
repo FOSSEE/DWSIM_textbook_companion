@@ -11,10 +11,16 @@ function generate_pdf()
 		':prop_id' => $proposal_id
 	));
 	$data2             = $query2->fetchObject();
-	$query3            = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id= :prop_id", array(
+	$query3            = db_query("SELECT * FROM {textbook_companion_proposal} WHERE id= :prop_id AND proposal_status =3", array(
 		':prop_id' => $proposal_id
 	));
 	$data3             = $query3->fetchObject();
+	if($data3){
+	if($data3->uid != $x){
+		drupal_set_message('Certificate is not available','error');
+		return;
+	}
+	}
 	$query4            = db_query("SELECT COUNT( tce.id ) AS example_count FROM textbook_companion_example tce
 						LEFT JOIN textbook_companion_chapter tcc ON tce.chapter_id = tcc.id
 						LEFT JOIN textbook_companion_preference tcpe ON tcc.preference_id = tcpe.id
@@ -23,6 +29,10 @@ function generate_pdf()
 		':prop_id' => $proposal_id
 	));
 	$data4             = $query4->fetchObject();
+	if($data4->example_count == 0) {
+		drupal_set_message('Certificate is not available','error');
+		return;
+	}
 	$number_of_example = $data4->example_count;
 	$gender            = array(
 		'salutation' => 'Mr. /Ms.',
