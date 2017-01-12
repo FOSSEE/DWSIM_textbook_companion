@@ -156,7 +156,7 @@ function generate_pdf()
 	$pdf->Cell(0, 7, ' Dept. of Chemical Engineering, IIT Bombay.', 0, 1, 'L');
 	$pdf->SetX(29);
 	$pdf->SetFont('Arial', 'B', 10);
-	$pdf->SetY(-57);
+	$pdf->SetY(-58);
 	$pdf->SetX(28);
 	$pdf->Cell(0, 2, $UniqueString, 0, 0, 'C');
 	$pdf->SetX(29);
