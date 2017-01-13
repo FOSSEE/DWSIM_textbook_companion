@@ -85,13 +85,15 @@ function generate_pdf()
 	$pdf->SetFont('Arial', 'I', 12);
 	if (strtolower($data3->branch) != "others") {
 		$pdf->SetTextColor(0, 0, 0);
-		$pdf->Cell(240, 8, 'from ' . $data3->university . ' has successfully', '0', '1', 'C');
+		//$pdf->Cell(240, 8, 'from ' . $data3->university . ' has successfully', '0', '1', 'C');
+		$pdf->MultiCell(240, 8, 'from ' . $data3->university . ' has successfully', '0','C');
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'completed Internship under DWSIM Textbook Companion', '0', '1', 'C');
 		$pdf->Ln(0);
 		$pdf->Cell(240, 8, 'He/she has coded ' . $number_of_example . ' solved examples using DWSIM from the', '0', '1', 'C');
 		$pdf->Ln(0);
-		$pdf->Cell(240, 8, 'Book: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
+		//$pdf->Cell(240, 8, 'Book: ' . $data2->book . ', Author: ' . $data2->author . '.', '0', '1', 'C');
+		$pdf->MultiCell(240, 8, 'Book: ' . $data2->book . ', Author: ' . $data2->author . '.', '0','C');
 		$pdf->Ln(0);
 	} //strtolower($data3->branch) != "others"
 	else {
