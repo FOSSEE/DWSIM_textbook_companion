@@ -810,15 +810,15 @@ function proposal_status_form_submit($form, &$form_state)
 		$query->fields(array(
 			'submited_all_examples_code' => 0
 		));
-		$query->condition('id', $proposal_id);
-		$num_updated                                                = $query->execute();
+		$query->condition('proposal_id', $proposal_id);
+		$num_updated = $query->execute();
 		/* sending email */
-		$book_user                                                  = user_load($proposal_data->uid);
-		$email_to                                                   = $book_user->mail;
-		$from                                                       = variable_get('textbook_companion_from_email', '');
-		$bcc                                                        = variable_get('textbook_companion_bcc_emails', '');
-		$cc                                                         = variable_get('textbook_companion_cc_emails', '');
-		$book_user                                                  = user_load($proposal_data->uid);
+		$book_user = user_load($proposal_data->uid);
+		$email_to = $book_user->mail;
+		$from = variable_get('textbook_companion_from_email', '');
+		$bcc = variable_get('textbook_companion_bcc_emails', '');
+		$cc = variable_get('textbook_companion_cc_emails', '');
+		$book_user = user_load($proposal_data->uid);
 		$params['all_code_submitted_status_changed']['proposal_id'] = $proposal_id;
 		$params['all_code_submitted_status_changed']['user_id']     = $proposal_data->uid;
 		$params['all_code_submitted_status_changed']['headers']     = array(
