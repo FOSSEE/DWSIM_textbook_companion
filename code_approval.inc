@@ -155,20 +155,24 @@ function code_approval_form($form, &$form_state)
 			'#type' => 'hidden',
 			'#value' => $example_data->id
 		);
-	} //$example_data = $example_q->fetchObject()
-	$form['submit'] = array(
-		'#type' => 'submit',
-		'#value' => t('Submit')
-	);
-	return $form;
+		$form['example_details'][$example_data->id]['example_number_hidden'] = array(
+            '#type' => 'hidden',
+            '#value' => $example_data->number
+        );
+    	}
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Submit')
+    );
+    return $form;
 }
 function code_approval_form_validate($form, &$form_state){
-	foreach ($form_state['values']['example_details'] as $ex_id => $ex_data) {
-	if ($ex_data['approved'] == "1"){
-		if($ex_data['message'] == NULL || $ex_data['message'] == '')
-		form_set_error('example_details', t('Enter reason for disapproval'));
-	}
-	}
+    foreach ($form_state['values']['example_details'] as $ex_id => $ex_data) {
+    if ($ex_data['approved'] == "1"){
+        if($ex_data['message'] == NULL || $ex_data['message'] == '')
+        form_set_error($ex_id . '][message', t('Enter reason for disapproval for experiment no: ' . $ex_data['example_number_hidden']));
+    }
+    }
 }
 function code_approval_form_submit($form, &$form_state)
 {
