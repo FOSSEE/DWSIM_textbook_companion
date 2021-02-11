@@ -38,10 +38,10 @@ function dwsim_tbc_completed_book_proposal_all()
 			/*$preference_data->book . " by " . $preference_data->author . ", " . $preference_data->publisher . ", " . $preference_data->year, 'textbook-companion/textbook-run/' . $preference_data->id*/
 		} //$row = $result->fetchObject()
 		$preference_header = array(
-			'S.No',
+			'No',
 			'TBC Project',
 			'Contributor Name',
-			'Publisher',
+			'University / Institute',
 			'Year of Completion'
 		);
 		$output .= theme('table', array(
