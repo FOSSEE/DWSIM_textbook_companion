@@ -783,7 +783,7 @@ function textbook_companion_menu()
 	);
 	/* COMPLETED DWSIM TBC Completed Books */
 	$items['textbook-companion/completed-books'] = array(
-		'title' => 'TBC Completed Books',
+		'title' => 'Completed Books',
 		'page callback' => 'dwsim_tbc_completed_book_proposal_all',
 		'access arguments' => array(
 			'download code'
