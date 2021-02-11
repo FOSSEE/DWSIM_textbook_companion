@@ -39,7 +39,7 @@ function dwsim_tbc_completed_book_proposal_all()
 		} //$row = $result->fetchObject()
 		$preference_header = array(
 			'No',
-			'TBC Project',
+			'Tittle of the Book',
 			'Contributor Name',
 			'University / Institute',
 			'Year of Completion'
