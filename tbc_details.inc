@@ -8,7 +8,7 @@ function dwsim_tbc_completed_book_proposal_all()
 	$query->leftJoin('textbook_companion_proposal', 'po', 'pe.proposal_id = po.id');
 	$query->condition('po.proposal_status', 3);
 	$query->condition('pe.approval_status', 1);
-	$query->orderBy('pe.book', 'ASC');
+	$query->orderBy('pe.year', 'DESC');
 	$result = $query->execute();
 
 	if ($result->rowCount() == 0)
