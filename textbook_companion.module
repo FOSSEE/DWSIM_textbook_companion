@@ -781,6 +781,15 @@ function textbook_companion_menu()
 		),
 		'type' => MENU_CALLBACK
 	);
+	/* COMPLETED DWSIM TBC Completed Books */
+	$items['textbook-companion/completed-books'] = array(
+		'title' => 'Completed Books',
+		'page callback' => 'dwsim_tbc_completed_book_proposal_all',
+		'access arguments' => array(
+			'download code'
+		),
+		'file' => 'tbc_details.inc',
+	);
 	return $items;
 }
 /**
@@ -884,7 +893,15 @@ function textbook_companion_permission()
 		"verify certificates" => array(
 			"title" => t("verify the certificates"),
 			"description" => t("verify the certificates")
-		)
+		),
+		/*'dwsim tbc completed books' => array(
+			'title' => t('dwsim textbook-companion completed code'),
+			"description" => t("Allows to view completed books")
+		)*/
+		'TBC download abstract' => array(
+			'title' => t('dwsim textbook-companion completed code'),
+			'restrict access' => TRUE
+		),
 	);
 }
 
