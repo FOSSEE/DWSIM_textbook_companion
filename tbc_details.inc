@@ -23,7 +23,7 @@ function dwsim_tbc_completed_book_proposal_all()
 		$output .= "Work has been completed on the following books under the Textbook Companion Project. <br>
 					<span style='color:red;'>The list below is not the books as named but only are the solved example for DWSIM.</span>";
 		$preference_rows = array();
-		$i = 1;
+		$i = $result->rowCount();
 		while ($row = $result->fetchObject())
 		{
 			$completion_date = date("Y", $row->completion_date);
@@ -34,7 +34,7 @@ function dwsim_tbc_completed_book_proposal_all()
 				$row->university,
 				$completion_date
 			);
-			$i++;
+			$i--;
 			/*$preference_data->book . " by " . $preference_data->author . ", " . $preference_data->publisher . ", " . $preference_data->year, 'textbook-companion/textbook-run/' . $preference_data->id*/
 		} //$row = $result->fetchObject()
 		$preference_header = array(
