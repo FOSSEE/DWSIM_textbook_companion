@@ -1,0 +1,139 @@
+<?php
+
+/**
+ * @file
+ * Contains \Drupal\textbook_companion\Form\BookNotesForm.
+ */
+
+namespace Drupal\textbook_companion\Form;
+
+use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+
+class BookNotesForm extends FormBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getFormId() {
+    return 'book_notes_form';
+  }
+
+  public function buildForm(array $form, \Drupal\Core\Form\FormStateInterface $form_state) {
+    $user = \Drupal::currentUser();
+    /* get current proposal */
+    $preference_id = arg(2);
+    $preference_id = (int) $preference_id;
+    /*$result = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $preference_id);*/
+    $query = db_select('textbook_companion_preference');
+    $query->fields('textbook_companion_preference');
+    $query->condition('id', $preference_id);
+    $result = $query->execute();
+    if ($result) {
+      if ($row = $result->fetchObject()) {
+        /* everything ok */
+      }
+      else {
+        drupal_set_message(t('Invalid book selected. Please try again.'), 'error');
+        drupal_goto('code_approval/bulk');
+        return;
+      }
+    }
+    else {
+      drupal_set_message(t('Invalid book selected. Please try again.'), 'error');
+      drupal_goto('code_approval/bulk');
+      return;
+    }
+    /* get current notes */
+    $notes = '';
+    /*$notes_q = db_query("SELECT * FROM {textbook_companion_notes} WHERE preference_id = %d LIMIT 1", $preference_id);*/
+    $query = db_select('textbook_companion_notes');
+    $query->fields('textbook_companion_notes');
+    $query->condition('preference_id', $preference_id);
+    $query->range(0, 1);
+    $notes_q = $query->execute();
+    if ($notes_q) {
+      $notes_data = $notes_q->fetchObject();
+      $notes = $notes_data->notes;
+    }
+    $book_details = _book_information($preference_id);
+    $form['book_details'] = [
+      '#type' => 'item',
+      '#markup' => '<span style="color: rgb(128, 0, 0);"><strong>About the Book</strong></span><br />' . '<strong>Author:</strong> ' . $book_details->author . '<br />' . '<strong>Title of the Book:</strong> ' . $book_details->book . '<br />' . '<strong>Publisher:</strong> ' . $book_details->publisher . '<br />' . '<strong>Year:</strong> ' . $book_details->year . '<br />' . '<strong>Edition:</strong> ' . $book_details->edition . '<br /><br />' . '<span style="color: rgb(128, 0, 0);"><strong>About the Contributor</strong></span><br />' . '<strong>Contributor Name:</strong> ' . $book_details->full_name . ', ' . $book_details->course . ', ' . $book_details->branch . ', ' . $book_details->university . '<br />',
+    ];
+    $form['notes'] = [
+      '#type' => 'textarea',
+      '#rows' => 20,
+      '#title' => t('Notes for Reviewers'),
+      '#default_value' => $notes,
+    ];
+    $form['submit'] = [
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+    ];
+    $form['cancel'] = [
+      '#type' => 'markup',
+      '#value' => l(t('Back'), 'code_approval/bulk'),
+    ];
+    return $form;
+  }
+
+  public function submitForm(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+    $user = \Drupal::currentUser();
+    /* get current proposal */
+    $preference_id = arg(2);
+    $preference_id = (int) $preference_id;
+    /*$result = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $preference_id);*/
+    $query = db_select('textbook_companion_preference');
+    $query->fields('textbook_companion_preference');
+    $query->condition('id', $preference_id);
+    $result = $query->execute();
+    if ($result) {
+      if ($row = $result->fetchObject()) {
+        /* everything ok */
+      }
+      else {
+        drupal_set_message(t('Invalid book selected. Please try again.'), 'error');
+        drupal_goto('code_approval/bulk');
+        return;
+      }
+    }
+    else {
+      drupal_set_message(t('Invalid book selected. Please try again.'), 'error');
+      drupal_goto('code_approval/bulk');
+      return;
+    }
+    /* find existing notes */
+    /*$notes_q = db_query("SELECT * FROM {textbook_companion_notes} WHERE preference_id = %d LIMIT 1", $preference_id);
+    $notes_data = db_fetch_object($notes_q);*/
+    $query = db_select('textbook_companion_notes');
+    $query->fields('textbook_companion_notes');
+    $query->condition('preference_id', $preference_id);
+    $query->range(0, 1);
+    $notes_q = $query->execute();
+    $notes_data = $notes_q->fetchObject();
+    /* add or update notes in database */
+    if ($notes_data) {
+      /*db_query("UPDATE {textbook_companion_notes} SET notes = '%s' WHERE id = %d", $form_state['values']['notes'], $notes_data->id);*/
+      $query = db_update('textbook_companion_notes');
+      $query->fields(['notes' => $form_state->getValue(['notes'])]);
+      $query->condition('id', $notes_data->id);
+      $num_updated = $query->execute();
+      drupal_set_message('Notes updated successfully.', 'status');
+    }
+    else {
+      /*db_query("INSERT INTO {textbook_companion_notes} (preference_id, notes) VALUES (%d, '%s')", $preference_id, $form_state['values']['notes']);*/
+      $query = "INSERT INTO {textbook_companion_notes} (preference_id, notes) VALUES	
+			(:preference_id, :notes)";
+      $args = [
+        ":preference_id" => $preference_id,
+        ":notes" => $form_state->getValue(['notes']),
+      ];
+      $result = db_query($query, $args, ['return' => Database::RETURN_INSERT_ID]);
+      drupal_set_message('Notes added successfully.', 'status');
+    }
+  }
+
+}
+?>
