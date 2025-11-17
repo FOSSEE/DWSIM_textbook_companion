@@ -1046,27 +1046,93 @@ class DefaultController extends ControllerBase {
     return $return_html;
   }
 
-  public function textbook_companion_download_example_file() {
-    $example_file_id = arg(3);
-    $root_path = textbook_companion_path();
-    $root_temp_path = textbook_companion_temp_path();
-    /*$example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE id = %d LIMIT 1", $example_file_id);
-	$example_file_data = db_fetch_object($example_files_q);*/
-    /*$query = db_select('textbook_companion_example_files');
-	$query->fields('textbook_companion_example_files');
-	$query->condition('id', $example_file_id);
-	$query->range(0, 1);
-	$result = $query->execute();*/
-    $example_files_q = db_query("select * from textbook_companion_preference tcp join textbook_companion_chapter tcc on tcp.id=tcc.preference_id join textbook_companion_example tce ON tcc.id=tce.chapter_id join textbook_companion_example_files tcef on tce.id=tcef.example_id where tcef.id= :example_id LIMIT 1", [
-      ':example_id' => $example_file_id
-      ]);
-    $example_file_data = $example_files_q->fetchObject();
-    header('Content-Type: ' . $example_file_data->filemime);
-    header('Content-disposition: attachment; filename="' . $example_file_data->filename . '"');
-    header('Content-Length: ' . filesize($root_path . $example_file_data->directory_name . '/' . $example_file_data->filepath));
-    ob_clean();
-    readfile($root_path . $example_file_data->directory_name . '/' . $example_file_data->filepath);
+  // public function textbook_companion_download_example_file() {
+  //   $example_file_id = arg(3);
+  //   $root_path = textbook_companion_path();
+  //   $root_temp_path = textbook_companion_temp_path();
+  //   /*$example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE id = %d LIMIT 1", $example_file_id);
+	// $example_file_data = db_fetch_object($example_files_q);*/
+  //   /*$query = db_select('textbook_companion_example_files');
+	// $query->fields('textbook_companion_example_files');
+	// $query->condition('id', $example_file_id);
+	// $query->range(0, 1);
+	// $result = $query->execute();*/
+  //   $example_files_q = db_query("select * from textbook_companion_preference tcp join textbook_companion_chapter tcc on tcp.id=tcc.preference_id join textbook_companion_example tce ON tcc.id=tce.chapter_id join textbook_companion_example_files tcef on tce.id=tcef.example_id where tcef.id= :example_id LIMIT 1", [
+  //     ':example_id' => $example_file_id
+  //     ]);
+  //   $example_file_data = $example_files_q->fetchObject();
+  //   header('Content-Type: ' . $example_file_data->filemime);
+  //   header('Content-disposition: attachment; filename="' . $example_file_data->filename . '"');
+  //   header('Content-Length: ' . filesize($root_path . $example_file_data->directory_name . '/' . $example_file_data->filepath));
+  //   ob_clean();
+  //   readfile($root_path . $example_file_data->directory_name . '/' . $example_file_data->filepath);
+  // }
+  public function textbook_companion_download_example_file($example_file_id) {
+  // Get the example file ID from the route.
+  $example_file_id = \Drupal::routeMatch()->getParameter('example_file_id');
+  
+  if (empty($example_file_id)) {
+    throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException();
   }
+
+  // Get root path (assuming this function exists in your module).
+  $root_path =\Drupal::service("textbook_companion_global")->textbook_companion_path();
+
+  // Database query using Drupal 10 Database API.
+  // $connection = \Drupal::database();
+  // $query = $connection->select('textbook_companion_preference', 'tcp')
+  //   ->join('textbook_companion_chapter', 'tcc', 'tcp.id = tcc.preference_id')
+  //   ->join('textbook_companion_example', 'tce', 'tcc.id = tce.chapter_id')
+  //   ->join('textbook_companion_example_files', 'tcef', 'tce.id = tcef.example_id')
+  //       ->fields('tcef')
+
+  //   ->condition('tcef.id', $example_file_id)
+  //   ->range(0, 1);
+
+  $connection = \Drupal::database();
+
+$query = $connection->select('textbook_companion_preference', 'tcp');
+$query->join('textbook_companion_chapter', 'tcc', 'tcp.id = tcc.preference_id');
+$query->join('textbook_companion_example', 'tce', 'tcc.id = tce.chapter_id');
+$query->join('textbook_companion_example_files', 'tcef', 'tce.id = tcef.example_id');
+
+// Fetch both file info and directory name
+$query->fields('tcef');
+$query->addField('tcp', 'directory_name', 'directory_name');
+
+$query->condition('tcef.id', $example_file_id);
+$query->range(0, 1);
+
+
+// Execute.
+
+  $example_file_data = $query->execute()->fetchObject();
+
+  if (!$example_file_data) {
+    throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException();
+  }
+
+  // Build full file path.
+  $file_path = $root_path . $example_file_data->directory_name . '/' . $example_file_data->filepath;
+
+  // var_dump( $example_file_data->directory_name);die;
+  if (!file_exists($file_path)) {
+    throw new \Symfony\Component\HttpKernel\Exception\NotFoundHttpException('File not found.');
+  }
+
+  // Prepare response using Symfony's BinaryFileResponse.
+  $response = new BinaryFileResponse($file_path);
+  $response->setContentDisposition(
+    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+    $example_file_data->filename
+  );
+  $response->headers->set('Content-Type', $example_file_data->filemime);
+  $response->headers->set('Content-Length', filesize($file_path));
+
+  return $response;
+}
+
+
 
   public function textbook_companion_download_sample_code() {
     $proposal_id = arg(3);
@@ -1352,156 +1418,7 @@ public function textbook_companion_download_chapter() {
 }
 
 
-  // public function textbook_companion_download_chapter() {
-  //   $chapter_id = arg(3);
-  //   //var_dump($chapter_id);die;
-  //   global $root_path;
-  //   $root_path = textbook_companion_path();
-  //   /* get example data */
-  //   /*$chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE id = %d", $chapter_id);
-	// $chapter_data = db_fetch_object($chapter_q);*/
-  //   $query = db_select('textbook_companion_chapter');
-  //   $query->fields('textbook_companion_chapter');
-  //   $query->condition('id', $chapter_id);
-  //   $result = $query->execute();
-  //   $chapter_data = $result->fetchObject();
-  //   $CH_PATH = 'CH' . $chapter_data->number . '/';
-  //   /* zip filename */
-  //   if (!is_dir($root_path . 'tbc_download_temp')) {
-  //     mkdir($root_path . 'tbc_download_temp');
-  //   }
-  //   $zip_filename = $root_path . 'tbc_download_temp/' . 'zip-' . time() . '-' . rand(0, 999999) . '.zip';
-
-  //   /* creating zip archive on the server */
-  //   $zip = new ZipArchive();
-  //   $zip->open($zip_filename, ZipArchive::CREATE);
-  //   /*$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = %d AND approval_status = 1", $chapter_id);*/
-  //   $query = db_select('textbook_companion_example');
-  //   $query->fields('textbook_companion_example');
-  //   $query->condition('chapter_id', $chapter_id);
-  //   $query->condition('approval_status', 1);
-  //   $example_q = $query->execute();
-  //   while ($example_row = $example_q->fetchObject()) {
-  //     $EX_PATH = 'EX' . $example_row->number . '/';
-  //     /*$example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id = %d", $example_row->id);*/
-  //     /*$query = db_select('textbook_companion_example_files');
-	// 	$query->fields('textbook_companion_example_files');
-	// 	$query->condition('example_id', $example_row->id);
-	// 	$example_files_q = $query->execute();*/
-  //     $example_files_q = db_query("select * from textbook_companion_preference tcp join textbook_companion_chapter tcc on tcp.id=tcc.preference_id join textbook_companion_example tce ON tcc.id=tce.chapter_id join textbook_companion_example_files tcef on tce.id=tcef.example_id where tcef.example_id= :example_id", [
-  //       ':example_id' => $example_row->id
-  //       ]);
-  //     while ($example_files_row = $example_files_q->fetchObject()) {
-  //       $zip->addFile($root_path . $example_files_row->directory_name . '/' . $example_files_row->filepath, $CH_PATH . $EX_PATH . $example_files_row->filename);
-  //     } //$example_files_row = $example_files_q->fetchObject()
-  //   } //$example_row = $example_q->fetchObject()
-  //   $zip_file_count = $zip->numFiles;
-  //   $zip->close();
-  //   if ($zip_file_count > 0) {
-  //     /* download zip file */
-  //     header('Content-Type: application/zip');
-  //     header('Content-disposition: attachment; filename="CH' . $chapter_data->number . '.zip"');
-  //     header('Content-Length: ' . filesize($zip_filename));
-  //     ob_clean();
-  //     readfile($zip_filename);
-  //     unlink($zip_filename);
-  //   } //$zip_file_count > 0
-  //   else {
-  //     drupal_set_message("There are no examples in this chapter to download", 'error');
-  //     drupal_goto('textbook-companion/textbook-run');
-  //   }
-  // }
-
-//      public function textbook_companion_download_book() {
-//     // $book_id = arg(3);
-//         $route_match = \Drupal::routeMatch();
-
-// $book_id = (int) $route_match->getParameter('book_id');
-//     /* get solution data */
-//     $root_path = \Drupal::service("textbook_companion_global")->textbook_companion_path();
-//     // var_dump($root_path);die;
-//     /* get example data */
-//     /*$book_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $book_id);
-//     $book_data = db_fetch_object($book_q);*/
-//     $query = \Drupal::database()->select('textbook_companion_preference');
-//     $query->fields('textbook_companion_preference');
-//     $query->condition('id', $book_id);
-//     $result = $query->execute();
-//     $book_data = $result->fetchObject();
-//     $zipname = str_replace(' ', '_', ($book_data->book));
-//     $directory_name = $book_data->directory_name;
-//     $BK_PATH = $zipname . '/';
-
-//     // var_dump($book_data);die;
-//     /* zip filename */
-//          $zip_filename = $root_path . 'zip-' . time() . '-' . rand(0, 999999) . '.zip';
-
-//         //  var_Dump($zip_filename);die;
-//     /* creating zip archive on the server */
-//       $zip = new \ZipArchive();
-//     $zip->open($zip_filename,\ZipArchive::CREATE);
-
-//   /*$chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE preference_id = %d", $book_id);*/
-//     $query = \Drupal::database()->select('textbook_companion_chapter');
-//     $query->fields('textbook_companion_chapter');
-//     $query->condition('preference_id', $book_id);
-//     $chapter_q = $query->execute();
-//     while ($chapter_row = $chapter_q->fetchObject()) {
-//       $CH_PATH = 'CH' . $chapter_row->number . '/';
-//       /*$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = %d AND approval_status = 1", $chapter_row->id);*/
-//       $query = \Drupal::database()->select('textbook_companion_example');
-//       $query->fields('textbook_companion_example');
-//       $query->condition('chapter_id', $chapter_row->id);
-//       $query->condition('approval_status', 1);
-//       $example_q = $query->execute();
-//       while ($example_row = $example_q->fetchObject()) {
-//         $EX_PATH = 'EX' . $example_row->number . '/';
-//         /*$example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id = %d", $example_row->id);*/
-//         $query = \Drupal::database()->select('textbook_companion_example_files');
-//         $query->fields('textbook_companion_example_files');
-//         $query->condition('example_id', $example_row->id);
-//         $example_files_q = $query->execute();
-//         while ($example_files_row = $example_files_q->fetchObject()) {
-//           $zip->addFile($root_path . $directory_name . '/' . $example_files_row->filepath, $BK_PATH . $CH_PATH . $EX_PATH . $example_files_row->filename);
-
-//         }
-//       }
-//     }
-//     $zip_file_count = $zip->numFiles;
-//     $zip->close();
-//     if ($zip_file_count > 0) {
-//       /* download zip file */
-//       $user = \Drupal::currentUser();
-//       if ($user->uid) {
-//         header('Content-Type: application/zip');
-//         header('Content-disposition: attachment; filename="' . str_replace(' ', '_', ($book_data->book)) . '.zip"');
-//         header('Content-Length: ' . filesize($zip_filename));
-//         ob_clean();
-//         readfile($zip_filename);
-//         unlink($zip_filename);
-//       }
-//       else {
-//         header('Content-Type: application/zip');
-//         header('Content-disposition: attachment; filename="' . str_replace(' ', '_', ($book_data->book)) . '.zip"');
-//         header('Content-Length: ' . filesize($zip_filename));
-//         header("Content-Transfer-Encoding: binary");
-//         header('Expires: 0');
-//         header('Pragma: no-cache');
-//         ob_end_flush();
-//         ob_clean();
-//         flush();
-//         readfile($zip_filename);
-//         unlink($zip_filename);
-//       }
-//     }
-//     else {
-//       \Drupal::messenger()->addMessage("There are no examples in this book to download", 'error');
-//       //drupal_goto('textbook-companion/textbook-run');
-// return $this->redirect('textbook_companion.run_form', ['book_pref_id' => $book_id]);
-
-
-//     }
-//   }
+  
 public function textbook_companion_download_book() {
     // $book_id = arg(3);
         $route_match = \Drupal::routeMatch();
@@ -1552,7 +1469,26 @@ $book_id = (int) $route_match->getParameter('book_id');
         $query->condition('example_id', $example_row->id);
         $example_files_q = $query->execute();
         while ($example_files_row = $example_files_q->fetchObject()) {
-          $zip->addFile($root_path . $directory_name . '/' . $example_files_row->filepath, $BK_PATH . $CH_PATH . $EX_PATH . $example_files_row->filename);
+          // $zip->addFile($root_path . $directory_name . '/' . $example_files_row->filepath, $BK_PATH . $CH_PATH . $EX_PATH . $example_files_row->filename);
+
+          $fs = \Drupal::service('file_system');
+
+$full_path = $root_path . $directory_name . '/' . $example_files_row->filepath;
+
+// Convert to real filesystem path
+$real_path = $fs->realpath($full_path);
+
+// Debug: Check if file exists
+if (!file_exists($real_path)) {
+    \Drupal::logger('tbc')->error('Missing file: ' . $real_path);
+    continue;
+}
+
+// Add file to ZIP
+$zip->addFile(
+    $real_path,
+    $BK_PATH . $CH_PATH . $EX_PATH . $example_files_row->filename
+);
 
         }
       }
@@ -1594,87 +1530,7 @@ return $this->redirect('textbook_companion.run_form', ['book_pref_id' => $book_i
   }
 
  
-  // public function textbook_companion_download_book() {
-  //   $book_id = arg(3);
-  //   $root_path = textbook_companion_path();
-  //   $root_temp_path = textbook_companion_temp_path();
-  //   /* get example data */
-  //   /*$book_q = db_query("SELECT * FROM {textbook_companion_preference} WHERE id = %d", $book_id);
-	// $book_data = db_fetch_object($book_q);*/
-  //   $query = db_select('textbook_companion_preference');
-  //   $query->fields('textbook_companion_preference');
-  //   $query->condition('id', $book_id);
-  //   $result = $query->execute();
-  //   $book_data = $result->fetchObject();
-  //   $zipname = str_replace(' ', '_', ($book_data->book));
-  //   $directory_name = $book_data->directory_name;
-  //   $BK_PATH = $zipname . '/';
-  //   /* zip filename */
-  //   if (!is_dir($root_temp_path . 'tbc_download_temp')) {
-  //     mkdir($root_temp_path . 'tbc_download_temp');
-  //   }
-  //   $zip_filename = $root_temp_path . 'tbc_download_temp/' . 'zip-' . time() . '-' . rand(0, 999999) . '.zip';
-  //   /* creating zip archive on the server */
-  //   $zip = new ZipArchive();
-  //   $zip->open($zip_filename, ZipArchive::CREATE);
-  //   /*$chapter_q = db_query("SELECT * FROM {textbook_companion_chapter} WHERE preference_id = %d", $book_id);*/
-  //   $query = db_select('textbook_companion_chapter');
-  //   $query->fields('textbook_companion_chapter');
-  //   $query->condition('preference_id', $book_id);
-  //   $chapter_q = $query->execute();
-  //   while ($chapter_row = $chapter_q->fetchObject()) {
-  //     $CH_PATH = 'CH' . $chapter_row->number . '/';
-  //     /*$example_q = db_query("SELECT * FROM {textbook_companion_example} WHERE chapter_id = %d AND approval_status = 1", $chapter_row->id);*/
-  //     $query = db_select('textbook_companion_example');
-  //     $query->fields('textbook_companion_example');
-  //     $query->condition('chapter_id', $chapter_row->id);
-  //     $query->condition('approval_status', 1);
-  //     $example_q = $query->execute();
-  //     while ($example_row = $example_q->fetchObject()) {
-  //       $EX_PATH = 'EX' . $example_row->number . '/';
-  //       /*$example_files_q = db_query("SELECT * FROM {textbook_companion_example_files} WHERE example_id = %d", $example_row->id);*/
-  //       $query = db_select('textbook_companion_example_files');
-  //       $query->fields('textbook_companion_example_files');
-  //       $query->condition('example_id', $example_row->id);
-  //       $example_files_q = $query->execute();
-  //       while ($example_files_row = $example_files_q->fetchObject()) {
-  //         $zip->addFile($root_path . $directory_name . '/' . $example_files_row->filepath, $BK_PATH . $CH_PATH . $EX_PATH . $example_files_row->filename);
-  //       } //$example_files_row = $example_files_q->fetchObject()
-  //     } //$example_row = $example_q->fetchObject()
-  //   } //$chapter_row = $chapter_q->fetchObject()
-  //   $zip_file_count = $zip->numFiles;
-  //   $zip->close();
-  //   if ($zip_file_count > 0) {
-  //     /* download zip file */
-  //     $user = \Drupal::currentUser();
-  //     if ($user->uid) {
-  //       header('Content-Type: application/zip');
-  //       header('Content-disposition: attachment; filename="' . str_replace(' ', '_', ($book_data->book)) . '.zip"');
-  //       header('Content-Length: ' . filesize($zip_filename));
-  //       ob_clean();
-  //       readfile($zip_filename);
-  //       unlink($zip_filename);
-  //     } //$user->uid
-  //     else {
-  //       header('Content-Type: application/zip');
-  //       header('Content-disposition: attachment; filename="' . str_replace(' ', '_', ($book_data->book)) . '.zip"');
-  //       header('Content-Length: ' . filesize($zip_filename));
-  //       header("Content-Transfer-Encoding: binary");
-  //       header('Expires: 0');
-  //       header('Pragma: no-cache');
-  //       ob_end_flush();
-  //       ob_clean();
-  //       flush();
-  //       readfile($zip_filename);
-  //       unlink($zip_filename);
-  //     }
-  //   } //$zip_file_count > 0
-  //   else {
-  //     drupal_set_message("There are no examples in this book to download", 'error');
-  //     drupal_goto('textbook-companion/textbook-run');
-  //   }
-  // }
-
+  
   public function textbook_companion_download_full_chapter() {
     $chapter_id = arg(3);
     $root_path = textbook_companion_path();
